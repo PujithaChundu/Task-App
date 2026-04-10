@@ -1,0 +1,25 @@
+{
+  "name": "task-app",
+  "version": "1.0.0",
+  "description": "Role-based task management system for Netlify and Supabase",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check server/app.js && node --check server/auth.js && node --check server/data.js && node --check server/supabase.js && node --check netlify/functions/api.js && node --check public/app.js",
+    "test": "echo \"No automated tests configured yet\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pdfkit": "^0.18.0",
+    "serverless-http": "^4.0.0"
+  }
+}

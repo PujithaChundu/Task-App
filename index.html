@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow Hub</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <section class="login-shell" id="loginView">
+        <div class="login-hero">
+          <p class="eyebrow">Task Management System</p>
+          <h1>Keep teams aligned with role-based task visibility.</h1>
+          <p class="hero-copy">
+            Managers coordinate delivery, employees focus on assigned work, and admins control access from one shared database-backed system.
+          </p>
+          <div class="hero-highlights">
+            <div class="hero-chip">Dashboard + reports</div>
+            <div class="hero-chip">Shared data across devices</div>
+            <div class="hero-chip">CSV, PDF, Word exports</div>
+          </div>
+        </div>
+
+        <form class="login-card" id="loginForm">
+          <p class="eyebrow">Secure Access</p>
+          <h2>Sign in</h2>
+          <label>
+            <span>Username</span>
+            <input type="text" name="username" placeholder="Enter username" required />
+          </label>
+          <label>
+            <span>Password</span>
+            <input type="password" name="password" placeholder="Enter password" required />
+          </label>
+          <button type="submit" class="primary-button">Login</button>
+          <p class="hint-text">Default admin login: <strong>admin</strong> / <strong>admin123</strong></p>
+          <p class="message" id="loginMessage"></p>
+        </form>
+      </section>
+
+      <section class="app-shell hidden" id="appView">
+        <aside class="sidebar">
+          <div class="brand-block">
+            <p class="eyebrow">TaskFlow Hub</p>
+            <h2>Operations Command</h2>
+          </div>
+
+          <div class="user-card">
+            <p id="profileName">User Name</p>
+            <span id="profileMeta">Role</span>
+          </div>
+
+          <nav class="sidebar-nav" id="sidebarNav">
+            <button class="nav-link active" data-section="dashboard">Dashboard</button>
+            <button class="nav-link" data-section="reports">Reports</button>
+            <button class="nav-link" data-section="departments">Departments</button>
+            <button class="nav-link manager-only" data-section="add-task">Add Task</button>
+            <button class="nav-link" data-section="tracking">Tracking</button>
+            <button class="nav-link admin-only" data-section="user-access">User Access</button>
+          </nav>
+
+          <button class="ghost-button sidebar-logout" id="logoutButton">Logout</button>
+        </aside>
+
+        <main class="content">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow" id="sectionEyebrow">Workspace Overview</p>
+              <h1 id="sectionTitle">Dashboard</h1>
+            </div>
+            <div class="topbar-actions">
+              <button class="ghost-button" id="refreshButton">Refresh</button>
+              <button class="primary-button" id="exportCsvButton">Export CSV</button>
+              <button class="ghost-button" id="exportPdfButton">Export PDF</button>
+              <button class="ghost-button" id="exportWordButton">Export Word</button>
+            </div>
+          </header>
+
+          <div class="message hidden" id="globalMessage"></div>
+
+          <section class="panel-section" data-section="dashboard">
+            <div class="summary-grid" id="summaryCards"></div>
+
+            <div class="panel surface">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Task Filters</p>
+                  <h2>Focus the board</h2>
+                </div>
+              </div>
+
+              <form class="filter-grid" id="filterForm">
+                <label>
+                  <span>Search</span>
+                  <input type="text" name="search" placeholder="Search title, description, or assignee" />
+                </label>
+                <label>
+                  <span>Status</span>
+                  <select name="status">
+                    <option value="">All</option>
+                    <option>To Do</option>
+                    <option>In Progress</option>
+                    <option>Done</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Priority</span>
+                  <select name="priority">
+                    <option value="">All</option>
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                    <option>Critical</option>
+                  </select>
+                </label>
+                <label class="manager-only">
+                  <span>Assignee</span>
+                  <select name="assignedTo" id="assignedToFilter">
+                    <option value="">All employees</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Due Window</span>
+                  <select name="due">
+                    <option value="">Any time</option>
+                    <option value="overdue">Overdue</option>
+                    <option value="upcoming">Next 7 days</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Department</span>
+                  <select name="departmentId" id="departmentFilter">
+                    <option value="">All departments</option>
+                  </select>
+                </label>
+                <div class="filter-actions">
+                  <button type="submit" class="primary-button">Apply Filters</button>
+                  <button type="button" class="ghost-button" id="clearFiltersButton">Clear</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="panel surface">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Task Board</p>
+                  <h2>Live task cards</h2>
+                </div>
+                <span class="panel-badge" id="taskCountBadge">0 tasks</span>
+              </div>
+              <div class="task-grid" id="taskGrid"></div>
+            </div>
+          </section>
+
+          <section class="panel-section hidden" data-section="reports">
+            <div class="report-grid">
+              <div class="panel surface">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Status Mix</p>
+                    <h2>Progress pulse</h2>
+                  </div>
+                </div>
+                <div class="ring-card">
+                  <div class="status-ring" id="statusRing"></div>
+                  <div class="ring-legend" id="ringLegend"></div>
+                </div>
+              </div>
+
+              <div class="panel surface">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Task Status</p>
+                    <h2>Completion bars</h2>
+                  </div>
+                </div>
+                <div class="chart-bars" id="statusChart"></div>
+              </div>
+            </div>
+
+            <div class="panel surface">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Priority Distribution</p>
+                  <h2>Where attention is needed</h2>
+                </div>
+              </div>
+              <div class="chart-bars priority-chart" id="priorityChart"></div>
+            </div>
+          </section>
+
+          <section class="panel-section hidden" data-section="departments">
+            <div class="split-layout">
+              <div class="panel surface manager-only">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Departments</p>
+                    <h2>Structure your teams</h2>
+                  </div>
+                </div>
+                <form class="stack-form" id="departmentForm">
+                  <input type="hidden" name="departmentId" />
+                  <label>
+                    <span>Department Name</span>
+                    <input type="text" name="name" placeholder="Operations" required />
+                  </label>
+                  <label>
+                    <span>Description</span>
+                    <textarea name="description" rows="4" placeholder="What this department focuses on"></textarea>
+                  </label>
+                  <div class="form-actions">
+                    <button type="submit" class="primary-button">Save Department</button>
+                    <button type="button" class="ghost-button" id="departmentResetButton">Clear</button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="panel surface">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Department Directory</p>
+                    <h2>Current groups</h2>
+                  </div>
+                </div>
+                <div class="department-list" id="departmentList"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel-section hidden" data-section="add-task">
+            <div class="panel surface">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Task Composer</p>
+                  <h2 id="taskFormTitle">Create and assign work</h2>
+                </div>
+              </div>
+              <form class="task-form" id="taskForm">
+                <input type="hidden" name="taskId" />
+                <label class="span-2">
+                  <span>Title</span>
+                  <input type="text" name="title" placeholder="Quarterly review preparation" required />
+                </label>
+                <label class="span-2">
+                  <span>Description</span>
+                  <textarea name="description" rows="5" placeholder="Describe the task scope and expectations"></textarea>
+                </label>
+                <label>
+                  <span>Priority</span>
+                  <select name="priority" required>
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                    <option>Critical</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Status</span>
+                  <select name="status" required>
+                    <option>To Do</option>
+                    <option>In Progress</option>
+                    <option>Done</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Due Date</span>
+                  <input type="date" name="dueDate" required />
+                </label>
+                <label>
+                  <span>Assign To</span>
+                  <select name="assignedTo" id="taskAssigneeSelect" required></select>
+                </label>
+                <label class="span-2">
+                  <span>Department</span>
+                  <select name="departmentId" id="taskDepartmentSelect">
+                    <option value="">Auto from assignee</option>
+                  </select>
+                </label>
+                <div class="form-actions span-2">
+                  <button type="submit" class="primary-button" id="taskSubmitButton">Create Task</button>
+                  <button type="button" class="ghost-button" id="taskResetButton">Clear</button>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <section class="panel-section hidden" data-section="tracking">
+            <div class="panel surface">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Activity Stream</p>
+                  <h2>Recent system changes</h2>
+                </div>
+              </div>
+              <div class="timeline" id="trackingList"></div>
+            </div>
+          </section>
+
+          <section class="panel-section hidden" data-section="user-access">
+            <div class="split-layout">
+              <div class="panel surface">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">Access Management</p>
+                    <h2 id="userFormTitle">Create user access</h2>
+                  </div>
+                </div>
+                <form class="stack-form" id="userForm">
+                  <input type="hidden" name="userId" />
+                  <label>
+                    <span>Full Name</span>
+                    <input type="text" name="fullName" placeholder="Ava Thompson" required />
+                  </label>
+                  <label>
+                    <span>Username</span>
+                    <input type="text" name="username" placeholder="ava.thompson" required />
+                  </label>
+                  <label>
+                    <span>Password</span>
+                    <input type="password" name="password" placeholder="Required for new users" />
+                  </label>
+                  <label>
+                    <span>Role</span>
+                    <select name="role" required>
+                      <option value="manager">Manager</option>
+                      <option value="employee">Employee</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Department</span>
+                    <select name="departmentId" id="userDepartmentSelect">
+                      <option value="">Unassigned</option>
+                    </select>
+                  </label>
+                  <label class="inline-toggle">
+                    <input type="checkbox" name="isActive" checked />
+                    <span>Login enabled</span>
+                  </label>
+                  <div class="form-actions">
+                    <button type="submit" class="primary-button" id="userSubmitButton">Save User</button>
+                    <button type="button" class="ghost-button" id="userResetButton">Clear</button>
+                  </div>
+                </form>
+              </div>
+
+              <div class="panel surface">
+                <div class="panel-heading">
+                  <div>
+                    <p class="eyebrow">User Directory</p>
+                    <h2>Granted access</h2>
+                  </div>
+                </div>
+                <div class="table-shell">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="userTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </section>
+    </div>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
